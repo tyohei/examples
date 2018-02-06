@@ -9,6 +9,5 @@ There are 6 types of function object in C++ (as far as I know).
 1. Lambda expression
 2. Functor
 3. Function pointer
-4. Block
-5. `std::function`
-6. `std::bind`
+4. `std::function`
+5. `std::bind`

@@ -1,1 +1,4 @@
+function_pointer
+functor
 lambda
+std_function

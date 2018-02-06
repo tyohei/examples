@@ -83,12 +83,22 @@ int main(int argc, char **argv) {
   std::cout << "b5: " << b5 << std::endl;
 
   /**
-   * To access **ALL** variables, use ``=`` in captures.
+   * To read **ALL** variables, use ``=`` in captures.
    */
   int a6 = 4;
   int b6 = 2;
   auto f6 = [=](int n) { return n * (a6 + b6); };
   std::cout << f6(10) << std::endl;
+
+  /**
+   * To read and write **ALL** variables, use ``&`` in captures.
+   */
+  int a7 = 4;
+  int b7 = 2;
+  auto f7 = [&](int n) { a7 = 1; b7 = 2; return n * (a7 + b7); };
+  std::cout << f7(10) << std::endl;
+  std::cout << "a7: " << a7 << std::endl;
+  std::cout << "b7: " << b7 << std::endl;
 
   return 0;
 }
