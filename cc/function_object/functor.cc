@@ -12,7 +12,10 @@
 int main(int argc, char **argv) {
   struct Functor0 {
     int operator()(int n) {
-      return n * n;
+      return operator()(n, n);
+    }
+    int operator()(int n, int m) {
+      return n * m;
     }
   };
   Functor0 f0 = Functor0();

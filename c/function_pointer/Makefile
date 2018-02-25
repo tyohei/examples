@@ -1,7 +1,8 @@
 # -------- Files and directories --------
 SRC = $(wildcard *.c)
 BIN = $(patsubst %.c, %, $(SRC))
-SUBDIRS := function_pointer struct
+ASB = $(patsubst %.c, %.s, $(SRC))
+SUBDIRS := 
 
 # -------- Commands and flags --------
 CC      = gcc
@@ -11,13 +12,16 @@ RM      = rm -fr
 # -------- Rules --------
 .PHONY: all $(SUBDIRS)
 
-all: $(BIN) $(SUBDIRS)
+all: $(BIN) $(ASB) $(SUBDIRS)
 
 $(SUBDIRS):
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 $(BIN): %: %.c
 	$(CC) $(CFLAGS) -o $@ $<
+
+$(ASB): %.s: %.c
+	$(CC) $(CFLAGS) -S $<
 
 clean: $(SUBDIRS)
 	$(RM) $(BIN)

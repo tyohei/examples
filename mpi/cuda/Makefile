@@ -2,11 +2,11 @@ MPI_HOME  = /usr/local
 CUDA_HOME = /usr/local/cuda
 
 # -------- Files and directories --------
-ifeq ($(wildcard $(CUDA_HOME)/*),)
-	SRC = $(wildcard *.cu)
-	OBJ = $(patsubst %.cu, %.o, $(SRC))
-	BIN = $(patsubst %.cu, %, $(SRC))
-	SUBDIRS :=
+ifneq ($(wildcard $(CUDA_HOME)/*),)
+SRC = $(wildcard *.cu)
+OBJ = $(patsubst %.cu, %.o, $(SRC))
+BIN = $(patsubst %.cu, %, $(SRC))
+SUBDIRS :=
 endif
 
 # -------- Commands and flags --------
@@ -18,10 +18,10 @@ NVCC_GENCODE ?= -gencode=arch=compute_30,code=sm_30 \
 								-gencode=arch=compute_60,code=sm_60 \
 								-gencode=arch=compute_61,code=sm_61 \
 								-gencode=arch=compute_61,code=compute_61
-NVCCFLAGS    = -std=c99 $(NVCC_GENCODE) -O0 \
+NVCCFLAGS    = $(NVCC_GENCODE) -O0 \
 							 -Xcompiler -Wall, -I$(MPI_HOME)/include
 LD           = $(MPI_HOME)/bin/mpicc
-LDFLAGS      = -lcudart -L$(CUDA_HOME)/lib64
+LDFLAGS      = -lstdc++ -lcudart -L$(CUDA_HOME)/lib64
 RM      = rm -fr
 
 # -------- Rules --------
@@ -39,4 +39,4 @@ $(OBJ): %.o: %.cu
 	$(NVCC) $(NVCCFLAGS) -c $< -o $@ 
 
 clean: $(SUBDIRS)
-	$(RM) $(BIN)
+	$(RM) $(BIN) $(OBJ)

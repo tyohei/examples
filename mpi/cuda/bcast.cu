@@ -27,7 +27,7 @@ typedef struct {
 
 bool hostname_exists(char*, void*, int);
 void initialize_info(MPI_Comm, void*, info_t*);
-int bcast(size_t, info_t);
+int bcast(int, info_t);
 
 
 /**
@@ -43,12 +43,12 @@ int bcast(size_t, info_t);
  *    bool: ``true`` if exists, ``false`` if not.
  *
  */
-bool hostname_exists(char *hostname, void *hostnames_set, int *inter_size) {
-  if ((*inter_size) == 0) { /* Nothing in the ``hostnames_set`` */
+bool hostname_exists(char *hostname, void *hostnames_set, int inter_size) {
+  if (inter_size == 0) { /* Nothing in the ``hostnames_set`` */
     return false;
   } else {
     char *hostname_i;
-    for (int i=0; i<(*inter_size); ++i) {
+    for (int i=0; i<inter_size; ++i) {
       hostname_i = (char*)(hostnames_set) + i * MPI_MAX_PROCESSOR_NAME;
       if (strcmp(hostname, hostname_i) == 0) {
         return true;
@@ -77,7 +77,7 @@ void initialize_info(MPI_Comm comm, void *hostnames, info_t *info) {
   char *hostname = (char*)hostnames + info->rank * MPI_MAX_PROCESSOR_NAME;
   void *hostnames_set = malloc(sizeof(char) * info->size
       * MPI_MAX_PROCESSOR_NAME);
-  void *hostname_i;
+  char *hostname_i;
   info->intra_rank = 0;
   info->intra_size = 0;
   info->inter_rank = 0;
@@ -125,7 +125,7 @@ void initialize_info(MPI_Comm comm, void *hostnames, info_t *info) {
  *    int: Error code of ``MPI_Bcast``.
  *
  */
-int bcast(size_t count, info_t info) {
+int bcast(int count, info_t info) {
   cudaSetDevice(info.inter_rank);
 
   /* Allocation and initalization of buffer */
@@ -133,16 +133,16 @@ int bcast(size_t count, info_t info) {
   double *buf_d = NULL;
   CUDACHECK( cudaMalloc(&buf_d, sizeof(double) * count) );
   for (int i=0; i<count; ++i) {
-    buf_h[i] = (info->rank == 0) ? i : 0;
+    buf_h[i] = (info.rank == 0) ? i : 0;
   }
 
   /* Host to device */
   CUDACHECK( cudaMemcpy(buf_d, buf_h, sizeof(double) * count,
         cudaMemcpyHostToDevice) );
 
-  if (rank == 1) {
+  if (info.rank == 1) {
     printf("[%d/%d: %s]: B (%.2f, %.2f, %.2f, %.2f, ...)\n",
-        info->rank, info->size, info->hostname,
+        info.rank, info.size, info.hostname,
         buf_h[0], buf_h[1], buf_h[2], buf_h[3]);
     printf("Starting broadcast...\n");
   }
@@ -154,9 +154,9 @@ int bcast(size_t count, info_t info) {
   CUDACHECK( cudaMemcpy(buf_h, buf_d, sizeof(double) * count,
         cudaMemcpyDeviceToHost) );
 
-  if (rank == 1) {
+  if (info.rank == 1) {
     printf("[%d/%d: %s]: A (%.2f, %.2f, %.2f, %.2f, ...)\n",
-        info->rank, info->size, info->hostname,
+        info.rank, info.size, info.hostname,
         buf_h[0], buf_h[1], buf_h[2], buf_h[3]);
     printf("Starting broadcast...\n");
   }
@@ -169,16 +169,26 @@ int bcast(size_t count, info_t info) {
 
 
 int main(int argc, char** argv) {
+  int count = 8192;
   info_t info;
   int hostname_len;
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &info.rank);
   MPI_Comm_size(MPI_COMM_WORLD, &info.size);
-  MPI_Get_processor_name(info->hostname, &hostname_len);
+  MPI_Get_processor_name(info.hostname, &hostname_len);
 
-  size_t count = 8192;
+   /**
+   * Initialize hostnames array.
+   * Subtract this process' hostname to this array.
+   */
+  void *hostnames = malloc(sizeof(char)*info.size*MPI_MAX_PROCESSOR_NAME);
+  char *hostname_target = (char*)hostnames + info.rank*MPI_MAX_PROCESSOR_NAME;
+  memcpy(
+      (void*)hostname_target,
+      (void*)info.hostname,
+      MPI_MAX_PROCESSOR_NAME*sizeof(char));
 
-  initialize_info(MPI_COMM_WORLD, &info);
+  initialize_info(MPI_COMM_WORLD, hostnames, &info);
   bcast(count, info);
 
   MPI_Finalize();

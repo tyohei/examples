@@ -1,7 +1,7 @@
 # -------- Files and directories --------
 SRC = $(wildcard *.cc)
 BIN = $(patsubst %.cc, %, $(SRC))
-SUBDIRS := function_object
+SUBDIRS := function_object class
 
 # -------- Commands and flags --------
 CC      = g++
