@@ -1,10 +1,7 @@
 # -------- Files and directories --------
 SRC = $(wildcard *.c)
 BIN = $(patsubst %.c, %, $(SRC))
-SUBDIRS := function_pointer \
-	         getenv \
-					 struct \
-					 lib \
+SUBDIRS := 
 
 # -------- Commands and flags --------
 CC      = gcc
