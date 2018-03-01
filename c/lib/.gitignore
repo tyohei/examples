@@ -1,0 +1,4 @@
+libshared.*
+libstatic.a
+main
+static.o
