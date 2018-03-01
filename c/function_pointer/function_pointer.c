@@ -4,7 +4,7 @@
 typedef int int_0;
 typedef int int_1;
 typedef int int_2;
-typedef int *(s_t)(int, int);
+typedef int (*f_t)(int, int);
 
 int add(int a, int b) {
   return a + b;
@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
   // And returns
   //    int
   int (*f_ptr)(int_0, int_0);
+  f_t function_ptr = &add;
 
   // Function pointer that takes two arguments
   //    int_0
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
   //    Funtion pointer that takes one arguments
   //        int
   // And returns
-  //        int
+  //    int
   int (*r_ptr)(int (*)(int), int (*)(int));
 
 
@@ -82,6 +83,7 @@ int main(int argc, char **argv) {
   f_ptr = &add;
   printf("f_ptr = &add;\n");
   printf("f_ptr(23, 13) = %d\n", f_ptr(23, 13));
+  printf("function_ptr(23, 13) = %d\n", function_ptr(23, 13));
   printf("\n");
   f_ptr = &sub;
   printf("f_ptr = &sub;\n");
