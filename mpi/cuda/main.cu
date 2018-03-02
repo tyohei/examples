@@ -175,49 +175,6 @@ int bcast(int count, info_t info,
 }
 
 
-/**
- * @brief Broadcast a data from rank 0 to others using CUDA-aware MPI.
- *
- * @param
- *    [NOTE: Parameters are same as ``MPI_Bcast()`` in MPI, paramter ``buf_d``
- *      is a pointer of device memory array.]
- *
- * @return
- *    int: Error code of ``MPI_Bcast()``.
- *
- */
-int cuda_aware_bcast(
-    double *buf_d, int count, MPI_Datatype dtype, int root, MPI_Comm comm) {
-  return MPI_Bcast(buf_d, count, dtype, root, comm);
-}
-
-
-/**
- * @brief Broadcast a data from rank 0 to others using non CUDA-aware MPI.
- *
- * @param
- *    [NOTE: Parameters are same as ``MPI_Bcast()`` in MPI, paramter ``buf_d``
- *      is a pointer of device memory array.]
- *
- * @return
- *    int: Error code of ``MPI_Bcast()``.
- *
- */
-int non_cuda_aware_bcast(
-    double *buf_d, int count, MPI_Datatype dtype, int root, MPI_Comm comm) {
-  double *buf_h = (double*)malloc(sizeof(double) * count);
-
-  CUDACHECK( cudaMemcpy(buf_h, buf_d, sizeof(double) * count,
-        cudaMemcpyDeviceToHost) );
-  int rc = MPI_Bcast(buf_h, count, dtype, root, comm);
-  CUDACHECK( cudaMemcpy(buf_d, buf_h, sizeof(double) * count,
-        cudaMemcpyHostToDevice) );
-
-  free(buf_h);
-  return rc;
-}
-
-
 int main(int argc, char** argv) {
   int count = 1;
   int ctype = 0;
