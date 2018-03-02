@@ -1,4 +1,6 @@
 include Makefile.config
+MPI_HOME  ?= /usr/local/
+CUDA_HOME ?= /usr/local/cuda
 
 # -------- Files and directories --------
 ifneq ($(wildcard $(CUDA_HOME)/*),)
