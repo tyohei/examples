@@ -1,2 +1,4 @@
-bcast
-bcast.o
+main
+main.o
+core.o
+Makefile.config

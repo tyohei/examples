@@ -1,11 +1,10 @@
-MPI_HOME  = /usr/local
-CUDA_HOME = /usr/local/cuda
+include Makefile.config
 
 # -------- Files and directories --------
 ifneq ($(wildcard $(CUDA_HOME)/*),)
 SRC = $(wildcard *.cu)
 OBJ = $(patsubst %.cu, %.o, $(SRC))
-BIN = $(patsubst %.cu, %, $(SRC))
+BIN = main
 SUBDIRS :=
 endif
 
@@ -32,7 +31,7 @@ all: $(BIN) $(SUBDIRS)
 $(SUBDIRS):
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
-$(BIN): %: %.o
+$(BIN): $(OBJ)
 	$(LD) $(LDFLAGS) -o $@ $^
 
 $(OBJ): %.o: %.cu
