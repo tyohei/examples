@@ -47,7 +47,9 @@ int main(int argc, char **argv) {
   /**
    * Get the inter and intra rank and size.
    */
+  int ndevices;
   initialize_info(MPI_COMM_WORLD, hostnames, &info);
+  cudaGetDeviceCount(&ndevices);
 
   printf("[%s:%d]: hostname: %s\n", info.hostname, info.rank, hostname_target);
   printf("[%s:%d]: rank: %d, size: %d\n", info.hostname, info.rank, info.rank,
@@ -56,6 +58,7 @@ int main(int argc, char **argv) {
       info.inter_rank, info.inter_size);
   printf("[%s:%d]: intra_rank: %d, intra_size: %d\n", info.hostname, info.rank,
       info.intra_rank, info.intra_size);
+  printf("[%s:%d]: # devices: %d\n", info.hostname, info.rank, ndevices);
 
   /**
    * Split the communicator to inter-comm and intra-comm.
