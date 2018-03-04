@@ -1,10 +1,11 @@
-#ifndef MY_CORE_H_
-#define MY_CORE_H_
+#ifndef MY_COMMON_H_
+#define MY_COMMON_H_
 
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define CUDACHECK(cmd) do {                         \
   cudaError_t e = cmd;                              \
@@ -15,10 +16,17 @@
   }                                                 \
 } while(0)
 
+typedef struct {
+  int rank;
+  int size;
+  int intra_rank;
+  int intra_size;
+  int inter_rank;
+  int inter_size;
+  char hostname[MPI_MAX_PROCESSOR_NAME];
+} info_t;
 
-int bcast_h2h(double*, int, MPI_Datatype, int, MPI_Comm);
-int bcast_h2d(double*, int, MPI_Datatype, int, MPI_Comm);
-int bcast_d2h(double*, int, MPI_Datatype, int, MPI_Comm);
-int bcast_d2d(double*, int, MPI_Datatype, int, MPI_Comm);
+bool hostname_exists(char*, void*, int);
+void initialize_info(MPI_Comm, void*, info_t*);
 
-#endif  // MY_CORE_H_
+#endif  // MY_COMMON_H_

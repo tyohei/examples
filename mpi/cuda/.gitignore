@@ -1,4 +1,3 @@
 main
-main.o
-core.o
+*.o
 Makefile.config
