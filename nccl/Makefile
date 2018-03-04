@@ -1,5 +1,7 @@
-MPI_HOME  = /usr/local
-CUDA_HOME = /usr/local/cuda
+include Makefile.config
+MPI_HOME  ?= /usr/local
+CUDA_HOME ?= /usr/local/cuda
+NCCL_HOME ?= /usr/local/cuda
 
 # -------- Files and directories --------
 ifneq ($(wildcard $(CUDA_HOME)/*),)
@@ -19,9 +21,9 @@ NVCC_GENCODE ?= -gencode=arch=compute_30,code=sm_30 \
 								-gencode=arch=compute_61,code=sm_61 \
 								-gencode=arch=compute_61,code=compute_61
 NVCCFLAGS    = $(NVCC_GENCODE) -O0 \
-							 -Xcompiler -Wall, -I$(MPI_HOME)/include
+							 -Xcompiler -Wall, -I$(MPI_HOME)/include, -I$(NCCL_HOME)/include
 LD           = $(MPI_HOME)/bin/mpicc
-LDFLAGS      = -lstdc++ -lcudart -L$(CUDA_HOME)/lib64
+LDFLAGS      = -lstdc++ -lcudart -lnccl -L$(CUDA_HOME)/lib64 -L$(NCCL_HOME)/lib
 RM      = rm -fr
 
 # -------- Rules --------
