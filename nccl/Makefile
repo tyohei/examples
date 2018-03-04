@@ -5,11 +5,15 @@ NCCL_HOME ?= /usr/local/cuda
 
 # -------- Files and directories --------
 ifneq ($(wildcard $(CUDA_HOME)/*),)
-SRC = $(wildcard *.cu)
+SRC = $(wildcard src/*.cu)
+INC = $(wildcard include/*.h)
 OBJ = $(patsubst %.cu, %.o, $(SRC))
-BIN = $(patsubst %.cu, %, $(SRC))
-SUBDIRS :=
+
+MAIN_SRC = main.cu
+MAIN_OBJ = $(patsubst %.cu, %.o, $(MAIN_SRC))
+MAIN_BIN = $(patsubst %.cu, %, $(MAIN_SRC))
 endif
+SUBDIRS :=
 
 # -------- Commands and flags --------
 NVCC         = $(CUDA_HOME)/bin/nvcc
@@ -21,7 +25,10 @@ NVCC_GENCODE ?= -gencode=arch=compute_30,code=sm_30 \
 								-gencode=arch=compute_61,code=sm_61 \
 								-gencode=arch=compute_61,code=compute_61
 NVCCFLAGS    = $(NVCC_GENCODE) -O0 \
-							 -Xcompiler -Wall, -I$(MPI_HOME)/include, -I$(NCCL_HOME)/include
+							 -Xcompiler -Wall, \
+							 -I$(MPI_HOME)/include, \
+							 -I$(NCCL_HOME)/include, \
+							 -I./include
 LD           = $(MPI_HOME)/bin/mpicc
 LDFLAGS      = -lstdc++ -lcudart -lnccl -L$(CUDA_HOME)/lib64 -L$(NCCL_HOME)/lib
 RM      = rm -fr
@@ -29,13 +36,16 @@ RM      = rm -fr
 # -------- Rules --------
 .PHONY: all $(SUBDIRS)
 
-all: $(BIN) $(SUBDIRS)
+all: $(MAIN_BIN) $(SUBDIRS)
 
 $(SUBDIRS):
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
-$(BIN): %: %.o
+$(MAIN_BIN): $(MAIN_OBJ) $(OBJ)
 	$(LD) $(LDFLAGS) -o $@ $^
+
+$(MAIN_OBJ): %.o: %.cu
+	$(NVCC) $(NVCCFLAGS) -c $< -o $@ 
 
 $(OBJ): %.o: %.cu
 	$(NVCC) $(NVCCFLAGS) -c $< -o $@ 
