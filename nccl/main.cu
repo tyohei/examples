@@ -1,4 +1,21 @@
 #include "common.h"
+#include "bcast.h"
+
+
+void test(info_t info, size_t count, ncclComm_t comm,
+          void (*func_ptr)(double*, size_t, ncclDataType_t, ncclComm_t,
+                          cudaStream_t)) {
+  /* Buffers */
+  double *buf_h = NULL;
+  double *buf_d = NULL;
+  cudaStream_t stream;
+  CUDACHECK( cudaStreamCreate(&stream) );
+
+  /* Broadcast */
+  bcast_init(info, &buf_h, &buf_d, count);
+  func_ptr(buf_d, count, ncclDouble, comm, stream);
+  bcast_finalize(info, buf_h, buf_d, count);
+}
 
 
 int main(int argc, char **argv) {
@@ -95,12 +112,54 @@ int main(int argc, char **argv) {
   NCCLCHECK( ncclCommInitRank(&intra_nccl_comm, info.intra_size, intra_nccl_id,
                               info.intra_rank) );
 
+  void (*func_ptr)(double*, size_t, ncclDataType_t, ncclComm_t, cudaStream_t);
+  size_t count;
+  int ctype;
+  if (argc < 3) {
+    fprintf(stderr, "Not valid arguments.\n");
+    return 1;
+  } else {
+    count = atoi(argv[1]);
+    ctype = atoi(argv[2]);
+    switch (ctype) {
+      case 0:
+        func_ptr = bcast_h2h;
+        if (info.rank == 0) {
+          printf("Using h2h broadcast.\n");
+        }
+        break;
+      case 1:
+        func_ptr = bcast_h2d;
+        if (info.rank == 0) {
+          printf("Using h2d broadcast.\n");
+        }
+        break;
+      case 2:
+        func_ptr = bcast_d2h;
+        if (info.rank == 0) {
+          printf("Using d2h broadcast.\n");
+        }
+        break;
+      case 3:
+        func_ptr = bcast_d2d;
+        if (info.rank == 0) {
+          printf("Using d2d broadcast.\n");
+        }
+        break;
+      default:
+        fprintf(stderr, "Not valid arguments.\n");
+        return 1;
+    }
+  }
+  test(info, count, nccl_comm, func_ptr);
+
   /**
    * Finalize.
    */
   ncclCommDestroy(nccl_comm);
   ncclCommDestroy(inter_nccl_comm);
   ncclCommDestroy(intra_nccl_comm);
+  cudaDeviceReset();
   free(hostnames);
   MPI_Finalize();
   return 0;
