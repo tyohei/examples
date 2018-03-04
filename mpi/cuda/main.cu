@@ -4,8 +4,6 @@
 
 int bcast_test(int count, info_t info,
                int (*func_ptr)(double*, int, MPI_Datatype, int, MPI_Comm)) {
-  cudaSetDevice(info.inter_rank);
-
   /* Allocation and initalization of buffer */
   double *buf_h = NULL;
   double *buf_d = NULL;
@@ -15,7 +13,6 @@ int bcast_test(int count, info_t info,
   int rc = func_ptr(buf_d, count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   bcast_finalize(info, buf_h, buf_d, count);
 
-  cudaDeviceReset();
   return rc;
 }
 
@@ -80,8 +77,11 @@ int main(int argc, char** argv) {
       MPI_MAX_PROCESSOR_NAME*sizeof(char));
 
   initialize_info(MPI_COMM_WORLD, hostnames, &info);
+  cudaSetDevice(info.inter_rank);
+
   bcast_test(count, info, func_ptr);
 
   MPI_Finalize();
+  cudaDeviceReset();
   return 0;
 }
