@@ -1,0 +1,125 @@
+<!DOCTYPE html>  <!-- NEEDED -->
+
+<!--
+  ********************************
+  <head> element
+
+  The <head> element is a container for metadata (data about data) and is
+  placed between the <html> tag and the <body> tag.
+  HTML metadata is data about the HTML document. Metadata is not displayed.
+
+  <head> tag MUST be as the FIRST element in an <html> element. That means you
+  cannot use multiple <head> tag (the second <head> element is not a first
+  element in <html> element).
+
+  The tags that describe metadata are
+    - <title>
+    - <style>
+    - <meta>
+    - <link>
+    - <script>
+    - <base>
+
+  Omitting the <head> tag has been a common practice for quite some time now.
+
+  ********************************
+-->
+<html>
+  <head>
+    <!-- ******************************** -->
+    <!--
+      <title> is element defines the title of the document, and is required in
+      all HTML/XHTML documents.
+      The <title> element:
+        - defines a title in the browser
+        - provides a title for the page when it is added to favorites
+        - displays a title for the page in search engine results
+    -->
+    <title>This is a title</title>
+
+    <!-- ******************************** -->
+    <!--
+      The <style> element is used to define style information for a single HTML page.
+      You can write CSS code which defines the document style at here.
+    -->
+    <style>
+body {background-color: powderblue;}  /* effects inside <body> tag */
+    </style>
+
+    <!-- ******************************** -->
+    <!--
+      The <meta> element is used to specify which character set is used, page
+      description, keywords, author, and other metadata. Metadata is used by
+      browsers (how to display content), by search engines (keywords), and
+      other web services.
+
+      <meta> element is a empty element, that has no content. Other empty
+      element in HTML is <br>.
+    -->
+    <meta charset="UTF-8">  <!-- Define the charset -->
+    <meta name="description", content="
+    Meta description will be shown in the Google search engine page. Meta
+    description can be any length, however 300 alphabetic chars is recommended
+    by Google.
+    ">
+    <meta name="keywords", content="usally_this_attribute_is_not_necessary">
+    <meta name="author", content="Yohei TSUJI">
+    <meta http-equiv="refresh", content="30">
+    <!--
+      The http-equiv attribute provides an HTTP header for the
+      information/value of the content attribute.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+      HTML5 introduced a method to let web designers take control over the
+      viewport, through the <meta> tag.
+      The viewport is the user's visible area of a web page. It varies with the
+      device, and will be smaller on a mobile phone than on a computer screen.
+      You SHOULD include the following <meta> viewport element in all your web
+      pages.
+
+      Recent users use smartphone to read and watch a web page.
+    -->
+
+    <!-- ******************************** -->
+    <!--
+      The <link> element is used to link to external style sheets. It is like
+      `import` in Python.
+      <link> element is a empty element, that has no content. Other empty
+      element in HTML is <br>.
+
+      You need to specify `rel` attribute that specify the relation between
+      THIS document and THAT document.
+      You need to specify `href` attribute that specify the URI of THAT
+      document.
+    -->
+    <link rel="icon", type="image/jpg" href="./logo.jpg">
+    <!-- This defines a logo in the browser, it is called FAVICON in Web -->
+    <!-- Also you can add a `stylesheet` to `rel` attribute -->
+
+    <!-- ******************************** -->
+    <!--
+      The <script> element is used to define client-side JavaScripts.
+    -->
+    <script>
+// This will displays Hello World! to your browser.
+document.write("Hello World!");
+// This will displays Hello World! to your browser as a dialog.
+alert("Hello World!");
+// This will displays Hello World! to your browser's console, in Windows <F12>,
+// macOS <command>-<option>-<i>.
+console.log("Hello World!");
+    </script>
+
+    <!-- ******************************** -->
+    <!--
+      The <base> element specifies the base URL and base target for all
+      relative URLs in a page
+      <base> element is a empty element, that has no content. Other empty
+      element in HTML is <br>.
+
+      Some thing like `CUDA_HOME` in setting PATHs.
+    -->
+    <base href="http://192.168.56.115/yohei/">  <!-- The last `/` is needed -->
+  </head>
+</html>
