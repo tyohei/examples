@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<!--
+  This code is a same contents of "とほほのJavascriptリファレンス"
+  (http://www.tohoho-web.com/js/index.htm).
+-->
+
+<title>Javascript self study</title>
+<meta charset="UTF-8">
+
+<body>
+  <div id="1441283">Some text...</div>
+  <div id="5681341">Some text...</div>
+  <script>
+// The web browser will automatically add a semicolon (;) at the end of
+// line, however you MUST not omit the semicolon when you are writing
+// your own code.
+document.write("Hello World!");
+
+// This will change the text "Some text..." to "Hello World!"
+document.getElementById("1441283").innerHTML = "Hello World!";
+
+// This will display at dialog.
+// alert() and window.alert() is actually same, since window is a GLOBAL object
+// ``document`` is also equal to ``window.document``.
+// It is better is omit the ``window`` part w.r.t. the speed performance.
+alert("Hello World!");
+window.alert("Hello World!");
+
+// This will display the current time.
+document.write(Date().toLocaleString());
+
+// ``onload`` and ``setInterval`` is equal to ``window.onload`` and
+// ``window.setInterval``.
+onload = function() {
+  setInterval(function() {
+    document.getElementById("5681341").innerHTML = Date().toLocaleString();
+  }, 1000);
+}
+  </script>
+</body>
