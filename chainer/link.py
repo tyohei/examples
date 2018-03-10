@@ -1,6 +1,7 @@
 import chainer
 import chainer.functions as F
 import chainer.links as L
+from collections import OrderedDict
 import numpy as np
 
 from googlenetbn import GoogLeNetBN
@@ -40,6 +41,61 @@ class MLP(chainer.Chain):
 
     def _secret(self):
         print('Secret called')
+
+
+def _kfac_backward(link, backward_main, retain_grad=True,
+                   enable_double_backprop=False, loss_scale=None):
+    with chainer.using_config('enable_backprop', enable_double_backprop):
+        # To obtain grads, we need to edit the origianl file (`variable.py`)
+        grads = backward_main(retain_grad, loss_scale)
+
+    namedparams = list(link.namedparams())
+
+    def get_linkname(param):
+        for _name, _param in namedparams:
+            if param is _param:
+                return _name[:_name.rfind('/')]
+        return None
+
+    data = {}
+    for node, grad in grads.items():
+        creator_node = node.creator_node  # parent function node
+        if creator_node is not None:  # ignore leaf node
+            if getattr(creator_node, '_input_indexes_to_retain') is not None:
+                a, param = creator_node.get_retained_inputs()
+                linkname = get_linkname(param)
+                if linkname is not None:
+                    # params that its linkname is None, are output layer (e.g.
+                    # softmax layer). These layers do not have laernable
+                    # param inside.
+                    data[linkname] = (creator_node.rank, a.data, grad.data)
+    data = OrderedDict(sorted(data.items(), key=lambda x: x[1][0]))
+    return data
+
+
+def stack_grad(link, data):
+
+    def get_param(path):
+        for _name, _param in link.namedparams():
+            if _name == path:
+                return _param
+        return None
+
+    for linkname in data.keys():
+        param_W = get_param(linkname + '/W')
+        param_b = get_param(linkname + '/b')
+        if param_W is None or param_b is None:
+            if param_W is not None:
+                pass
+                #print('b is None...' + linkname)
+            elif param_b is not None:
+                print('W is None...' + linkname)
+            else:
+                pass
+                #print('W and b is None...' + linkname)
+        else:
+            print('No None!...' + linkname)
+    return
 
 
 def main():
@@ -137,7 +193,12 @@ def main():
     x = chainer.Variable(np.ones((batchsize, 10), dtype=np.float32)) 
     y = model(x) 
     z = F.sum(y)
-    z.backward(retain_grad=True)
+    backward_main = getattr(z, '_backward_main')
+    print('================')
+    data = _kfac_backward(model, backward_main)
+    for param_name, (rank, a, g) in data.items():
+        print(param_name, rank)
+
     print(z.rank)
     print(y.rank)
     print(x.rank)
@@ -173,12 +234,17 @@ def main():
     print(check(y.creator_node.inputs[1].get_variable(), model)[0])
     print(check(y.creator_node.inputs[2].get_variable(), model)[0])
 
+    print('================')
     googlenetbn = GoogLeNetBN()
     x = np.zeros((1, 3, googlenetbn.insize, googlenetbn.insize), dtype=np.float32)
     t = np.zeros((1,), dtype=np.int32)
     y = googlenetbn(x, t)
-    y.backward()
-    print(y.rank)  # 113
+
+    backward_main = getattr(y, '_backward_main')
+    data = _kfac_backward(googlenetbn, backward_main)
+    stack_grad(googlenetbn, data)
+    # print(y.rank)  # 113
+
 
 if __name__ == "__main__":
     main()
