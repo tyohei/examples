@@ -5,15 +5,15 @@ import common
 
 def main():
     comm = MPI.COMM_WORLD
-    printhost = common.create_printhost(comm)
-    printhost('Hello World!')
+    print_mpi = common.create_print_mpi(comm)
+    print_mpi('Hello World!')
 
     if comm.rank == 0 or comm.rank == 1:
         intracomm = comm.Split(color=0, key=comm.rank)
     else:
         intracomm = comm.Split(color=1, key=comm.rank)
 
-    printhost('Hello Intra World!: [{}/{}]'.format(intracomm.rank,
+    print_mpi('Hello Intra World!: [{}/{}]'.format(intracomm.rank,
                                                    intracomm.size))
 
     if comm.rank == 0 or comm.rank == 1:
@@ -26,7 +26,7 @@ def main():
     intercomm = intracomm.Create_intercomm(
         local_leader, MPI.COMM_WORLD, remote_leader)
 
-    printhost('Hello Inter World!: [{}/{}]'.format(intercomm.rank,
+    print_mpi('Hello Inter World!: [{}/{}]'.format(intercomm.rank,
                                                    intercomm.size))
 
     if comm.rank == 0 or comm.rank == 1:

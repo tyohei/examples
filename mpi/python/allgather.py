@@ -6,7 +6,7 @@ import common
 
 def main():
     comm = MPI.COMM_WORLD
-    printhost = common.create_printhost(comm)
+    print_mpi = common.create_print_mpi(comm)
 
     # ================================================================
 
