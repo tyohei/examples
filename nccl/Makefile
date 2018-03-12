@@ -51,4 +51,4 @@ $(OBJ): %.o: %.cu
 	$(NVCC) $(NVCCFLAGS) -c $< -o $@ 
 
 clean: $(SUBDIRS)
-	$(RM) $(BIN) $(OBJ)
+	$(RM) $(MAIN_BIN) $(MAIN_OBJ) $(BIN) $(OBJ)
