@@ -2,10 +2,10 @@ CUDA_HOME = /usr/local/cuda
 
 # -------- Files and directories --------
 ifneq ($(wildcard $(CUDA_HOME)/*),)
-SRC = $(wildcard *.cu)
-OBJ = $(patsubst %.cu, %.o, $(SRC))
-BIN = $(patsubst %.cu, %, $(SRC))
-SUBDIRS :=
+  SRC = $(wildcard *.cu)
+  OBJ = $(patsubst %.cu, %.o, $(SRC))
+  BIN = $(patsubst %.cu, %, $(SRC))
+  SUBDIRS :=
 endif
 
 # -------- Commands and flags --------
