@@ -69,6 +69,8 @@ def _kfac_backward(link, backward_main, retain_grad=True,
                     # softmax layer). These layers do not have laernable
                     # param inside.
                     data[linkname] = (creator_node.rank, a.data, grad.data)
+                    print(type(a))
+                    print(type(grad))
     data = OrderedDict(sorted(data.items(), key=lambda x: x[1][0]))
     return data
 
@@ -243,7 +245,6 @@ def main():
     backward_main = getattr(y, '_backward_main')
     data = _kfac_backward(googlenetbn, backward_main)
     stack_grad(googlenetbn, data)
-    # print(y.rank)  # 113
 
 
 if __name__ == "__main__":
