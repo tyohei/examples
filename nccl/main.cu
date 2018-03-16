@@ -1,8 +1,9 @@
 #include "common.h"
+#include "allgather.h"
 #include "bcast.h"
 
 
-void test(info_t info, size_t count, ncclComm_t comm,
+void test_bcast(info_t info, size_t count, ncclComm_t comm,
           void (*func_ptr)(double*, size_t, ncclDataType_t, ncclComm_t,
                           cudaStream_t)) {
   /* Buffers */
@@ -15,6 +16,25 @@ void test(info_t info, size_t count, ncclComm_t comm,
   bcast_init(info, &buf_h, &buf_d, count);
   func_ptr(buf_d, count, ncclDouble, comm, stream);
   bcast_finalize(info, buf_h, buf_d, count);
+}
+
+void test_allgather(info_t info, size_t count, ncclComm_t comm,
+                    void (*func_ptr)(double*, double*, size_t, ncclDataType_t,
+                                     ncclComm_t, cudaStream_t)) {
+  /* Buffers */
+  double *send_buf_h = NULL;
+  double *send_buf_d = NULL;
+  double *recv_buf_h = NULL;
+  double *recv_buf_d = NULL;
+  cudaStream_t stream;
+  CUDACHECK( cudaStreamCreate(&stream) );
+
+  /* AllGather */
+  allgather_init(info, &send_buf_h, &send_buf_d, &recv_buf_h, &recv_buf_d,
+                 count);
+  func_ptr(send_buf_d, recv_buf_d, count, ncclDouble, comm, stream);
+  allgather_finalize(info, send_buf_h, send_buf_d, recv_buf_h, recv_buf_d,
+                     count);
 }
 
 
@@ -115,7 +135,10 @@ int main(int argc, char **argv) {
   NCCLCHECK( ncclCommInitRank(&intra_nccl_comm, info.intra_size, intra_nccl_id,
                               info.intra_rank) );
 
-  void (*func_ptr)(double*, size_t, ncclDataType_t, ncclComm_t, cudaStream_t);
+  void (*bcast_func_ptr)(double*, size_t, ncclDataType_t, ncclComm_t,
+                         cudaStream_t);
+  void (*allgather_func_ptr)(double*, double*, size_t, ncclDataType_t,
+                             ncclComm_t, cudaStream_t);
   size_t count;
   int ctype;
   if (argc < 3) {
@@ -126,27 +149,33 @@ int main(int argc, char **argv) {
     ctype = atoi(argv[2]);
     switch (ctype) {
       case 0:
-        func_ptr = bcast_h2h;
+        bcast_func_ptr = bcast_h2h;
+        allgather_func_ptr = allgather_h2h;
         if (info.rank == 0) {
           printf("Using h2h broadcast.\n");
+          printf("Using h2h allgather.\n");
         }
         break;
       case 1:
-        func_ptr = bcast_h2d;
+        return 0;
+        bcast_func_ptr = bcast_h2d;
         if (info.rank == 0) {
           printf("Using h2d broadcast.\n");
         }
         break;
       case 2:
-        func_ptr = bcast_d2h;
+        return 0;
+        bcast_func_ptr = bcast_d2h;
         if (info.rank == 0) {
           printf("Using d2h broadcast.\n");
         }
         break;
       case 3:
-        func_ptr = bcast_d2d;
+        bcast_func_ptr = bcast_d2d;
+        allgather_func_ptr = allgather_d2d;
         if (info.rank == 0) {
           printf("Using d2d broadcast.\n");
+          printf("Using d2d allgather.\n");
         }
         break;
       default:
@@ -154,7 +183,10 @@ int main(int argc, char **argv) {
         return 1;
     }
   }
-  test(info, count, nccl_comm, func_ptr);
+
+  /* Actual test */
+  test_bcast(info, count, nccl_comm, bcast_func_ptr);
+  test_allgather(info, count, nccl_comm, allgather_func_ptr);
 
   /**
    * Finalize.
