@@ -5,6 +5,7 @@ from collections import OrderedDict
 import numpy as np
 
 from googlenetbn import GoogLeNetBN
+from resnet50 import ResNet50
 
 
 class SubMLP(chainer.Chain):
@@ -244,8 +245,24 @@ def main():
 
     backward_main = getattr(y, '_backward_main')
     data = _kfac_backward(googlenetbn, backward_main)
-    stack_grad(googlenetbn, data)
+    for k, v in data.items():
+        print(k, v[1].shape, v[2].shape)
+    #stack_grad(googlenetbn, data)
 
+    print('================')
+    resnet = ResNet50()
+    x = np.zeros((1, 3, resnet.insize, resnet.insize), dtype=np.float32)
+    t = np.zeros((1,), dtype=np.int32)
+    y = resnet(x, t)
+
+    backward_main = getattr(y, '_backward_main')
+    data = _kfac_backward(resnet, backward_main)
+    for k, v in data.items():
+        print(k, v[1].shape, v[2].shape)
+
+    print('================')
+    for k, v in resnet.namedlinks():
+        print(k, type(v))
 
 if __name__ == "__main__":
     main()

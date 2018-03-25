@@ -5,15 +5,20 @@ def create_print_mpi(comm):
     rank = comm.rank
     size = comm.size
     host = MPI.Get_processor_name()
-    def print_mpi(msg):
-        digits = len(str(size - 1))
-        prefix = '[{{:0{}}}/{}:{}]: '.format(digits, size, host)
-        prefix = prefix.format(rank)
+    digits = len(str(size - 1))
+    prefix = '[{{:0{}}}/{}:{}] '.format(digits, size, host).format(rank)
+
+    def print_mpi(obj, root=None):
         for i in range(size):
             if i == rank:
-                print(prefix, end='')
-                print(msg)
-                comm.Barrier()
+                if root is not None:
+                    if i == root:
+                        print(prefix, end='')
+                        print(obj)
+                else:
+                    print(prefix, end='')
+                    print(obj)
+            comm.Barrier()
     return print_mpi
 
 
