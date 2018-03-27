@@ -23,8 +23,8 @@ def create_print_mpi(comm):
 
 
 def main():
-    printhost = create_printhost(MPI.COMM_WORLD)
-    printhost('Hello World!')
+    print_mpi = create_print_mpi(MPI.COMM_WORLD)
+    print_mpi('Hello World!')
 
 
 if __name__ == '__main__':
