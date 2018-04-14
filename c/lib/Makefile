@@ -10,10 +10,11 @@ STATIC_LIB = $(patsubst %.c, lib%.a, $(STATIC_SRC))
 SHARED_SRC = shared.c
 SHARED_INC = $(patsubst %.c, %.h, $(SHARED_SRC)) 
 ifeq ($(shell uname), Darwin)
-SHARED_LIB = $(patsubst %.c, lib%.dylib, $(SHARED_SRC))
+  SHARED_EXT = dylib
 else
-SHARED_LIB = $(patsubst %.c, lib%.so, $(SHARED_SRC))
-endif  # ($(shell uname), Darwin)
+  SHARED_EXT = so
+endif
+SHARED_LIB = $(patsubst %.c, lib%.$(SHARED_EXT), $(SHARED_SRC))
 
 SUBDIRS := 
 
@@ -21,6 +22,12 @@ SUBDIRS :=
 CC      = gcc
 CFLAGS  = -std=c99 -Wall -O0 -I.
 LDFLAGS = -L.
+ifeq ($(shell uname), Darwin)
+  SHARED_CFLAGS = -dynamiclib
+else
+  SHARED_CFLAGS = -shared
+endif
+SHARED_CFLAGS += -fPIC
 
 AR      = ar r
 
@@ -42,13 +49,8 @@ $(STATIC_LIB): lib%.a: %.o
 	$(AR) $@ $<
 
 # -------- Create dynamic library --------
-ifeq ($(shell uname), Darwin)
-$(SHARED_LIB): lib%.dylib: %.c
-	$(CC) $(CFLAGS) -dynamiclib -fPIC -o $@ $<
-else
-$(SHARED_LIB): lib%.dylib: %.c
-	$(CC) $(CFLAGS) -shared -fPIC -o $@ $<
-endif  # ($(shell uname), Darwin)
+$(SHARED_LIB): lib%.$(SHARED_EXT): %.c
+	$(CC) $(CFLAGS) $(SHARED_CFLAGS) -o $@ $<
 
 # -------- Create main binary --------
 $(BIN): %: %.c $(STATIC_LIB) $(SHARED_LIB)
