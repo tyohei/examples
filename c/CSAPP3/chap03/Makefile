@@ -6,7 +6,7 @@ SUBDIRS :=
 
 # -------- Commands and flags --------
 CC      = gcc-7
-CFLAGS  = -std=c99 -Wall -O1
+CFLAGS  = -std=c99 -Wall -Og
 RM      = rm -fr
 
 # -------- Rules --------

@@ -1,12 +1,11 @@
-long fact_do(long n)
+long fact_for(long n)
 {
+  long i;
   long result = 1;
-  do
+  for (i = 2; i <= n; i++)
   {
-    result *= n;
-    n = n - 1;
+    result *= i;
   }
-  while (n > 1);
   return result;
 }
 
@@ -15,3 +14,4 @@ int main(int argc, char **argv)
 {
   return 0;
 }
+

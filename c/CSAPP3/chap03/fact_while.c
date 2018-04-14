@@ -1,6 +1,3 @@
-#include <stdio.h>
-
-
 long fact_while(long n)
 {
   long result = 1;
