@@ -1,14 +1,3 @@
-/****************************************************************
- * Class in C++
- *
- *    - Class is a extension on struct in C, and it can be said that a class is
- *      a struct that has functions and access atribution.
- *    - Class is composed by data members and member functions.
- *    - Member functions are normally defined **OUTSIDE** of the class
- *      declaration, and the only prototype is written inside the class.
- *    - Usally, the class declaration is written in the header file .h.
- *
-****************************************************************/
 #include <iostream>
 
 

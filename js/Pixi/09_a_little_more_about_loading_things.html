@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<title>A little more about loading things</title>
+<meta charset="UTF-8">
+<script src='./pixi.min.js'></script>
+
+<body>
+  <script type="text/javascript">
+/*
+Make a sprite from an ordinary JavaScript Image or Canvas
+
+For optimization and efficiency it's always best to make a sprite from a
+texture that's been pre-loaded into Pixi's texture cache.
+But if for some reason you need to make a texture from a regular JavaScript
+``Image`` object, you can do that using Pixi's ``BaseTexture`` and ``Texture``
+classes.
+*/
+let image = new Image();
+image.src = "./cat.png";
+document.body.appendChild(image);  // Append to <body>...</body>
+
+let app     = new PIXI.Application();
+let base    = new PIXI.BaseTexture(image);
+let texture = new PIXI.Texture(base);
+let sprite  = new PIXI.Sprite(texture);
+document.body.appendChild(app.view);
+
+app.stage.addChild(sprite);
+
+/*
+You can use ``BaseTexture.fromCanvas`` if you want to make texture from any
+existing canvas element. If you want to change the texture the sprite is
+displaying, use the texture property. Set it to any ``Texture`` object.
+*/
+PIXI.loader
+  .add("./dog.jpg")
+  .load(setup);
+function setup()
+{
+  sprite.texture = PIXI.utils.TextureCache["./dog.jpg"];
+}
+PIXI.loader.reset();  // Resets the loader
+
+/*
+It is possible to assign a unique name to each resource you want to load. Just
+supply the name (a string) as thr first argument in the ``add`` method. For
+example, here's how to name an image of a cat as ``catImage``.
+*/
+PIXI.loader
+  .add("catImage", "./cat.png")
+  .load(setup);
+function setup()
+{
+  let sprite = new PIXI.Sprite(
+    PIXI.loader.resources.catImage.texture
+    // We cannot use ``PIXI.loader.resources["./cat.png"].texture``
+  );
+}
+PIXI.loader.reset();
+/*
+However, developers recommend us not to use this feature. That's becaues we'll
+have to remember all names you gave each loaded files, as well as make sure we
+don't accidentally use the same name more than once. Using the file path name,
+as we've done in previous examples is simpler and less error prone.
+*/
+
+/*
+Monitoring load progess
+
+Pixi's loader has a special ``progress`` event that will call a customizable
+function that will run each time a file loads.
+``progress`` events are called by the ``loader``'s ``on`` method
+You can also find out exactly which file has loaded and what percentage of
+overall files are have currently loaded. You can do this by adding optional
+``loader`` and ``resource`` parameters to the ``loadProgressHandler`` function.
+*/
+let loader = PIXI.loader;
+loader.add("./dog.jpg");
+loader.on("progress", loadProgressHandler);
+loader.load(setup);
+function loadProgressHandler(loader, resource)
+{
+  // Display the file ``url`` currently being loaded
+  console.log("loading: " + resource.url);
+
+  // Display the percentage of files currently loaded
+  console.log("progress: " + loader.progress + "%");
+}
+function setup()
+{
+  console.log("ALl files loaded");
+  let sprite = new PIXI.Sprite(
+    PIXI.loader.resources["./dog.jpg"].texture
+  );
+  app.stage.addChild(sprite);
+}
+  </script>
+</body>

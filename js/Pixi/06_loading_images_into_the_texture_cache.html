@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<title>Loading images into the texture cache</title>
+<meta charset="UTF-8">
+<script src="./pixi.min.js"></script>
+
+<body>
+  <script type="text/javascript">
+/*
+Because Pixi renders the image on the GPU with WebGL, the image needs to be in
+a format that the GPU can process. A WebGL-ready image is called a
+___texture___. Before you can make a sprite display an image, you need to
+convert an ordinary image file into a WebGL texture. To keep everything
+working fast and efficiently under the hood, Pixi uses a
+___texture cache___ to store and reference all the textures your sprites will
+need. The name of the textures are strings that match the file locations of the
+images they refer to. That means if you have a texture that was loaded from
+"./cat.png", you could find it in the texture cache like this.
+
+  PIXI.utils.TextureCache["./cat.png"];
+
+The textures are stored in a WebGL compatible format that's efficient for
+Pixi's renderer to work with. You can then use Pixi's ``Sprite`` class to make
+a new sprite using the texture.
+
+  let texture = PIXI.utils.TextureCache["./cat.png"];
+  let sprite = new PIXI.Sprite(texture);
+
+But how do you load the image file and convert it into texture?
+Use Pixi's built-in ``loader`` object.
+Pixi's development team recommends that if you use the loader, you should
+create the sprite by referencing the texture in the ``loader``'s
+``resources`` object.
+*/
+PIXI.loader.add("./cat.png")
+           .load(setup);
+
+function setup()
+{
+  let sprite = new PIXI.Sprite(
+    PIXI.loader.resources["./cat.png"].texture
+  );
+}
+/*
+This is the general format we'll be using to load images and create sprites in
+this tutorial.
+You can load multiple image at the same time by listing them with chainable 
+``add`` methods, like this
+
+  PIXI.loader.add("./one.png")
+             .add("./two.png")
+             .add("./three.png")
+             .load(setup);
+
+Or maybe better
+
+  PIXI.loader.add([
+    "./one.png",
+    "./two.png",
+    "./three.png"
+  ])
+             .load(setup)
+*/
+  </script>
+</body>

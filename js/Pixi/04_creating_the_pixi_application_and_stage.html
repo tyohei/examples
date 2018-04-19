@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<title>Creatting the Pixi Application and stage</title>
+<meta charset="UTF-8">
+<script src="./pixi.min.js"></script>
+<style>* {padding: 0; margin: 0}</style>  <!-- for full size canvas -->
+
+<body>
+  <script type="text/javascript">
+// Create a Pixi Application
+let app1 = new PIXI.Application({width: 256, height: 256});
+
+// Add the canvas that Pixi automatically created for you to the HTML document
+document.body.appendChild(app1.view);  // ----> Make viewable from the browser
+/*
+This is the most basic code you need to write to get started using Pixi.
+It produces a black 256 x 256 pixel canvas element and ADDS it to your HTML
+document.
+
+"PIXI.Application" figures out whether to use Canvas Drawing API or WebGL to
+render graphics, depending on which is available in the web browser you're
+using. Its argument is a single object called the ``options`` object.
+*/
+delete app1;
+let app2 = new PIXI.Application({
+  width:       256,    // default: 100
+  height:      256,    // default: 100
+  antialias:   true,   // default: false
+  transparent: false,  // default: false
+  resolution:  1       // default: 1
+});
+document.body.appendChild(app2.view);
+/*
+Pixi's renderer object will default to WebGL, which is good, because WebGL is
+incredibly fast, and lets you use some spectacular visual effects.
+*/
+
+// If you need to change the background color of the canvas after you've
+// created it, set the ``app.renderer`` object's ``backgroundColor`` property
+// to any hex color value.
+app2.renderer.backgroundColor = 0x06163c;
+
+// If you want to find the width and height of the renderer, use
+// ``app.renderer.view.width`` and ``app.renderer.view.height``.
+app2.renderer.view.height = 300;
+
+// To change the size of the canvas, use the ``renderer``'s ``resize`` method,
+// and supply any new ``width`` and ``height`` values. But, to make sure the
+// canvas is resized to match the resolution, set ``autoResize`` to true.
+app2.renderer.autoResize = true;
+app2.renderer.resize(512, 512);
+
+// If you want to make the canvas fill the entire window, you can apply this
+// CSS styling and resize the renderer to the size of the browser window.
+// But if you do that, make sure you also set the default padding and
+// marginns to 0 on all your HTML elements with bit of CSS code.
+app2.renderer.view.style.position = "absolute";
+app2.renderer.view.style.dispaly = "block";
+app2.renderer.autoResize = true;
+app2.renderer.resize(window.innerWidth, window.innerHeight);
+  </script>
+</body>

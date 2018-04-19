@@ -1,14 +1,14 @@
 from socket import gethostname
 
 
-def create_print_mpi(comm):
+def create_mpi_print(comm):
     rank = comm.rank
     size = comm.size
     host = gethostname()
     digits = len(str(size - 1))
     prefix = '[{{:0{}}}/{}:{}] '.format(digits, size, host).format(rank)
 
-    def print_mpi(*args, root=None, **kwargs):
+    def mpi_print(*args, root=None, **kwargs):
         for i in range(size):
             if i == rank:
                 if root is not None:
@@ -19,13 +19,13 @@ def create_print_mpi(comm):
                     print(prefix, end='')
                     print(*args, **kwargs)
             comm.Barrier()
-    return print_mpi
+    return mpi_print
 
 
 def main():
     from mpi4py import MPI
-    print_mpi = create_print_mpi(MPI.COMM_WORLD)
-    print_mpi('Hello World!', 'yes')
+    mpi_print = create_mpi_print(MPI.COMM_WORLD)
+    mpi_print('Hello World!', 'yes')
 
 
 if __name__ == '__main__':
