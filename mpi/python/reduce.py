@@ -15,7 +15,7 @@ def main():
     mpi_print = common.create_mpi_print(comm)
 
     sendbuf = create_buf()
-    recvbuf = create_buf()[0] if comm.rank == 0 else None
+    recvbuf = create_buf() if comm.rank == 0 else None
     buf = recvbuf if comm.rank == 0 else sendbuf
     mpi_print("""
 BEFORE: MEAN: {},
