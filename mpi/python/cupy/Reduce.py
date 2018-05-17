@@ -22,10 +22,6 @@ def create_recvbuf(nelems, arr, gpu_buf):
     nbytes = nelems * 4
     gpu_buf.assign(nbytes)
     offset = 0
-    for x in arr:
-        size = x.size * 4
-        gpu_buf.from_device(x, size, offset)
-        offset += size
     buf = [gpu_buf.buffer(nbytes), MPI.FLOAT]
     return buf
 
@@ -50,8 +46,8 @@ def main():
     sendbuf_gpu = _memory_utility.DeviceMemory()
     recvbuf_gpu = _memory_utility.DeviceMemory()
     sendbuf = create_sendbuf(nelems, sendarr, sendbuf_gpu)
-    recvbuf = create_recvbuf(nelems, recvarr, recvbuf_gpu) if comm.rank == 0 \
-        else None
+    recvbuf = create_recvbuf(nelems, recvarr, recvbuf_gpu)
+    recvbuf = recvbuf if comm.rank == 0 else None
 
     mpi_print('BEFORE MEAN: {}, MAX: {}, MIN: {}'.format(
         sendarr.mean(), sendarr.max(), sendarr.min()))
