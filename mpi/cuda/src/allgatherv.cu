@@ -172,7 +172,7 @@ void allgatherv_init(const info_t info, double **sendbuf_h, double **recvbuf_h,
     MPI_Barrier(MPI_COMM_WORLD);
   }
   if (info.rank == info.size - 1) {
-    printf("Starting broadcast...\n");
+    printf("Starting MPI_Allgatherv()...\n");
   }
   MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -211,7 +211,7 @@ void allgatherv_finalize(const info_t info, double *sendbuf_h,
     MPI_Barrier(MPI_COMM_WORLD);
   }
   if (info.rank == info.size - 1) {
-    printf("Broadcast done.\n");
+    printf("MPI_Allgatherv() done.\n");
   }
   MPI_Barrier(MPI_COMM_WORLD);
 
