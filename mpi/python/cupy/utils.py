@@ -17,6 +17,22 @@ def get_intra_rank(comm):
     return intra_rank
 
 
+def pack(array, device_buffer):
+    offset = 0
+    for x in array:
+        size = x.size * 4
+        device_buffer.from_device(x, size, offset)
+        offset += size
+
+
+def unpack(array, device_buffer):
+    offset = 0
+    for x in array:
+        size = x.size * 4
+        device_buffer.to_device(x, size, offset)
+        offset += size
+
+
 def main():
     from mpi4py import MPI
     comm = MPI.COMM_WORLD

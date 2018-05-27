@@ -2,36 +2,10 @@ import chainer.cuda
 from chainermn.communicators import _memory_utility
 import cupy
 from mpi4py import MPI
+import time
 
 import common
 import utils
-
-def create_sendbuf(nelems, arr, gpu_buf):
-    nbytes = nelems * 4
-    gpu_buf.assign(nbytes)
-    offset = 0
-    for x in arr:
-        size = x.size * 4
-        gpu_buf.from_device(x, size, offset)
-        offset += size
-    buf = [gpu_buf.buffer(nbytes), MPI.FLOAT]
-    return buf
-
-
-def create_recvbuf(nelems, arr, gpu_buf):
-    nbytes = nelems * 4
-    gpu_buf.assign(nbytes)
-    offset = 0
-    buf = [gpu_buf.buffer(nbytes), MPI.FLOAT]
-    return buf
-
-
-def unpack(arr, gpu_buf):
-    offset = 0
-    for x in arr:
-        size = x.size * 4
-        gpu_buf.to_device(x, size, offset)
-        offset += size
 
 
 def main():
@@ -40,25 +14,39 @@ def main():
     chainer.cuda.get_device(intra_rank).use()
     mpi_print = common.create_mpi_print(comm)
 
-    nelems = pow(2, 20)
-    sendarr = cupy.random.rand(nelems, dtype=cupy.float32)
-    recvarr = cupy.zeros((nelems,), dtype=cupy.float32)
+    nelems_list = [2, 4, 8, 16, 32, 64, 128, 256]
+    nelems_max = nelems_list[-1] * pow(2, 20)
+
+    sendarr = cupy.random.rand(nelems_max, dtype=cupy.float32)
+    recvarr = cupy.zeros((nelems_max,), dtype=cupy.float32)
+    if comm.rank == 0:
+        print('array initialized...')
+
     sendbuf_gpu = _memory_utility.DeviceMemory()
+    sendbuf_gpu.assign(nelems_max * 4)
     recvbuf_gpu = _memory_utility.DeviceMemory()
-    sendbuf = create_sendbuf(nelems, sendarr, sendbuf_gpu)
-    recvbuf = create_recvbuf(nelems, recvarr, recvbuf_gpu)
-    recvbuf = recvbuf if comm.rank == 0 else None
+    recvbuf_gpu.assign(nelems_max * 4)
+    if comm.rank == 0:
+        print('GPU buffer initialized...')
 
-    mpi_print('BEFORE MEAN: {}, MAX: {}, MIN: {}'.format(
-        sendarr.mean(), sendarr.max(), sendarr.min()))
+    utils.pack([sendarr], sendbuf_gpu)
+    if comm.rank == 0:
+        print('packed...')
 
-    # YOU MUST SYNC BEFORE COMMUNICATION !!!
-    chainer.cuda.Stream.null.synchronize()  
-    comm.Reduce(sendbuf, recvbuf)
+    for nelems in nelems_list:
+        nelems *=  pow(2, 20)
 
-    unpack(recvarr, recvbuf_gpu)
-    mpi_print('AFTER MEAN: {}, MAX: {}, MIN: {}'.format(
-        recvarr.mean(), recvarr.max(), recvarr.min()))
+        sendbuf = [sendbuf_gpu.buffer(nelems * 4), MPI.FLOAT]
+        recvbuf = [recvbuf_gpu.buffer(nelems * 4), MPI.FLOAT] if comm.rank == 0 else None
+
+        if comm.rank == 0:
+            s_time = time.time()
+        # WE MUST SYNC BEFORE COMMUNICATION !!!
+        chainer.cuda.Stream.null.synchronize()  
+        comm.Reduce(sendbuf, recvbuf, root=0)
+
+        if comm.rank == 0:
+            print('COUNT {} MiBytes, TIME {} sec'.format((nelems*4)/pow(2, 20), time.time() - s_time))
 
 
 if __name__ == '__main__':

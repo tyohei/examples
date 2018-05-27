@@ -1,4 +1,6 @@
+*.log
+*.o
+*.pdf
 main
 main.sh
-*.o
 Makefile.config

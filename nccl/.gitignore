@@ -2,3 +2,5 @@ Makefile.config
 
 main
 *.o
+run.sh
+submit.sh
