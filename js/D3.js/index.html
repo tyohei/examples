@@ -1,9 +1,202 @@
 <!DOCTYPE html>  <!-- Needed -->
 
 <title>D3 sample</title>
+<!-- Required meta tags -->
 <meta charset="UTF-8">
-<script src="https://d3js.org/d3.v5.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 <body>
-  <script src="sample02.js"></script>
+  <script src="http://d3js.org/d3.v5.min.js"></script>
+  <script>
+    {
+      let width = 960;
+      let height = 700;
+
+      let svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      svg.append("circle")
+        .attr("cx",50)
+        .attr("cy",50)
+        .attr("r",20)
+        .attr("fill","green")
+        .attr("stroke-width",3)
+        .attr("stroke","orange");
+
+      svg.append("rect")
+        .attr("x",100)
+        .attr("y",70)
+        .attr("width",50)
+        .attr("height",30)
+        .attr("fill","red");
+
+      svg.append("line")
+        .attr("x1",150)
+        .attr("x2",200)
+        .attr("y1",50)
+        .attr("y2",100)
+        .attr("stroke-width",4)
+        .attr("stroke","black");
+    }
+    {
+      let width = 960;
+      let height = 700;
+
+      let svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      let list = [30, 70, 60];
+
+      svg.selectAll("circle")
+        .data(list)  // create empty list which length is len(list)
+        .enter()     // create D3 object foreach x in list
+            .append("circle")
+            .attr("r", 10)
+            .attr("fill","blue")
+            .attr("cx", function(d){ return d * 2; })
+            .attr("cy", function(d,i){ return (i + 1) * 50; });
+      svg.selectAll("circle").remove()  // Clear
+
+      svg.selectAll("circle")
+       .data(list)
+       .enter()
+        .append("circle")
+          .attr("cx", 100)
+          .attr("stroke-width",1)
+          .attr("stroke","black")
+          .attr("r", function(d){ return d/3; })
+          .attr("cy", function(d){ return d*2; })
+          .attr("fill", function(d){ if(d<=50){ return "red"; }else{return "green"; } });
+      svg.selectAll("circle").remove()  // Clear
+
+      let dict = [
+        {"subject": "mathematic", "score": 90},
+        {"subject": "english", "score": 43},
+        {"subject": "statistics", "score": 99},
+        {"subject": "cs", "score": 87}
+      ]
+
+      let group = svg.selectAll("circle")
+        .data(dict)
+        .enter()  // foreach
+          .append("g");  // group tag for SVG
+
+      group.append("circle")
+        .attr("cy", 100)
+        .attr("r", 10)
+        .attr("fill", "blue")
+        .attr("cx", function(d){ return d["score"]*3; });
+
+      group.append("text")
+        .text(function(d){ return d["subject"]; })
+        .attr("fill","gray")
+        .attr("y",80)
+        .attr("x", function(d){ return d["score"]*3; })
+        .attr("font-size", 10);
+    }
+    {
+      let width = 960;
+      let height = 700;
+
+      let svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      let list = [30, 70, 60];
+
+      let gdp = [
+        {"year": 2007, "gdp": 524},
+        {"year": 2008, "gdp": 518},
+        {"year": 2009, "gdp": 490},
+        {"year": 2010, "gdp": 512},
+        {"year": 2011, "gdp": 510},
+        {"year": 2012, "gdp": 517},
+        {"year": 2013, "gdp": 525},
+      ]
+
+      let xScale = d3.scaleLinear()
+        .domain([2007, 2013])
+        .range([10, width + 10]);
+
+      let yScale = d3.scaleLinear()
+        .domain([490, 525])
+        .range([height - 10, 10])
+
+      let cScale = d3.scaleLinear()
+        .domain([490, 525])
+        .range(["blue", "red"])
+
+      svg.selectAll("circle")
+        .data(gdp)
+        .enter()
+          .append("circle")
+          .attr("r", 10)
+          .attr("fill", function(d){return cScale(d["gdp"]);})
+          .attr("cx", function(d){return xScale(d["year"]);})
+          .attr("cy", function(d){return yScale(d["gdp"]);});
+    }
+    {
+      let margin = {
+        "top": 20, "bottom": 30, "left": 40, "right": 40
+      }
+      let width = 700 - (margin.left + margin.right);
+      let height = 400 - (margin.top + margin.bottom);
+      let svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      let inner_svg = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      let gdp = [
+        {"year": 2007, "gdp": 524},
+        {"year": 2008, "gdp": 518},
+        {"year": 2009, "gdp": 490},
+        {"year": 2010, "gdp": 512},
+        {"year": 2011, "gdp": 510},
+        {"year": 2012, "gdp": 517},
+        {"year": 2013, "gdp": 525},
+      ]
+
+      let xScale = d3.scaleLinear()
+        .domain([2007, 2013])
+        .range([10, width + 10]);
+
+      let yScale = d3.scaleLinear()
+        .domain([490, 525])
+        .range([height - 10, 10])
+
+      let cScale = d3.scaleLinear()
+        .domain([490, 525])
+        .range(["blue", "red"])
+
+      let xAxis = d3.axisBottom(xScale)
+        .tickSize(6, -height)
+        .tickFormat(function(d){return d + "年";});
+
+      let yAxis = d3.axisLeft(yScale)
+        .tickSize(6, -width)
+
+      // Dots
+      svg.selectAll("circle")
+        .data(gdp)
+        .enter()
+          .append("circle")
+          .attr("r",10)
+          .attr("fill", function(d){ return cScale(d["gdp"]); })
+          .attr("cx", function(d){ return xScale(d["year"]); })
+          .attr("cy", function(d){ return yScale(d["gdp"]); });
+
+      // y-Axis
+      svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+          .attr("y", -10)
+          .attr("x", 10)
+          .style("text-anchor", "end")
+          .text("GDP")
+    }
+  </script>
 </body>

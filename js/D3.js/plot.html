@@ -1,0 +1,47 @@
+<!doctype>
+<body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+  {
+    let width = 900;
+    let height = 400;
+    let padding = 30;
+
+    let svg = d3.select("body")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    let xScale = d3.scaleLinear();
+    let yScale = d3.scaleLinear();
+    let xAxisCall = d3.axisBottom(xScale);
+    let yAxisCall = d3.axisLeft(yScale);
+
+    function drawLog(json) {
+      let [x, y] = getData(json, "epoch", "main/loss");
+      setScale(x, y, xScale, yScale);
+      svg.append("g")
+        .attr("transform", "translate(" + 0 + "," + (height - padding) + ")");
+        .call(xAxisCall);
+      svg.append("g")
+        .attr("transform", "translate(" + padding + "," + 0 + ")")
+        .call(yAxisCall);
+    }
+
+    function getData(json, x_str, y_str) {
+      let x = [];
+      let y = [];
+      for (let i=0; i<json.length; i++) {
+        x.push(data[i][x_str]);
+        y.push(data[i][y_str]);
+      }
+      return [x, y];
+    }
+
+    function setScale(x, y, xScale, yScale) {
+      xScale.domain([0, d3.max(x)]).range([padding, width - padding]);
+      yScale.domain([0, d3.max(y)]).range([height - padding, padding]);
+    }
+  }
+</script>
+</body>

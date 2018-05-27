@@ -1,0 +1,55 @@
+<!doctype html>
+
+<meta charset="utf-8">
+
+<body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+{
+  let width = 900;
+  let height = 500;
+
+  let svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  d3.json("data.json").then(function(data){ console.log(data); });
+  d3.json("data.json").then(function(data){
+    console.log(data);
+    let padding = 30;
+
+    let xScale = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return d[0]; })])
+      .range([padding, width - padding]);
+
+    let yScale = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return d[1]; })])
+      .range([height - padding, padding]);  // reverse scale
+
+    let xAxis = d3.axisBottom(xScale);
+    let yAxis = d3.axisLeft(yScale);
+    svg.append("g")
+      .attr("transform", "translate(" + 0 + "," + (height - padding) + ")")
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("transform", "translate(" + padding + "," + 0 + ")")
+      .call(yAxis);
+
+    svg.append("g")
+      .selectAll("circle")
+      .data(data)
+      .enter()
+        .append("circle").attr("cx", function(d) {
+          return xScale(d[0]);
+        })
+        .attr("cy", function(d) {
+          return yScale(d[1]);
+        })
+        .attr("fill", "SkyBlue")
+        .attr("r", 4);
+  });
+}
+</script>
+</body>

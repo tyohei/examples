@@ -54,10 +54,10 @@ BEFORE: MEAN: {},
         MAX:  {},
         MIN:  {},
         LEN:  {}""".format(
-        recvbuf[0].mean(),
-        recvbuf[0].max(),
-        recvbuf[0].min(),
-        len(recvbuf[0])))
+        sendbuf.mean() if len(sendbuf) > 0 else '-',
+        sendbuf.max() if len(sendbuf) > 0 else '-',
+        sendbuf.min() if len(sendbuf) > 0 else '-',
+        len(sendbuf)))
     comm.Allgatherv(sendbuf, recvbuf)
     mpi_print("""
 AFTER:  MEAN: {},
