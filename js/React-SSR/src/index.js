@@ -1,6 +1,6 @@
 import express from 'express';
 import React from 'react';
-import App from './App';
+import ButtonAppBar from './buttonAppBar';
 
 import { renderToString } from 'react-dom/server'
 import { SheetsRegistry } from 'react-jss/lib/jss';
@@ -32,7 +32,11 @@ function main(req, res, next) {
   // Create a theme instance.
   const theme = createMuiTheme({
     palette: {
-      primary: green,
+      primary: {
+        main: '#263238',
+        light: '#4f5b62',
+        dark: '#000a12',
+      },
       accent: red,
       type: 'light',
     }
@@ -44,7 +48,7 @@ function main(req, res, next) {
   const html = renderToString(
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
       <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
-        <App />
+        <ButtonAppBar />
       </MuiThemeProvider>
     </JssProvider>
   );
