@@ -1,5 +1,6 @@
 import argparse
 import collections
+import math
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -17,7 +18,7 @@ def get_times(fname):
             if not start:
                 continue
             if 'DONE' in line:
-                break
+                continue
             lst = line.split(' ')  # split by space
             mebibytes = int(lst[1])
             sec = float(lst[4])
@@ -34,13 +35,14 @@ def main():
     for log in args.log: 
         times = get_times(log)
         x = sorted(times.keys())
+        x = [math.log2(x) for x in x]
         y = []
         for k, v in times.items():
             seconds = np.array(v)
             y.append(seconds.mean())
-        if '8170' in log:
-            label = 'ncclReduce'
-        if '8171' in log:
+        if '8225' in log:
+            label = 'ncclAllGather'
+        if '8224' in log:
             label = 'ncclAllReduce'
         ax.plot(x, y, label=label)
 
