@@ -33,5 +33,11 @@ def load_googlenet():
     return GoogLeNet()  # NOQA
 
 
+def load_vgg():
+    url = 'https://raw.githubusercontent.com/chainer/chainer/master/examples/cifar/models/VGG.py'  # NOQA
+    _load(url)
+    return VGG()  # NOQA
+
+
 def load_mlp():
     return MLP()
