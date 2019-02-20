@@ -5,7 +5,7 @@ BIN = $(patsubst %.c, %, $(SRC))
 SUBDIRS := 
 
 # -------- Commands and flags --------
-CC      = gcc-7
+CC      = gcc-8
 CFLAGS  = -std=c99 -Wall -Og
 RM      = rm -fr
 
