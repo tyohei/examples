@@ -9,6 +9,9 @@ module.exports = {
     rules: [{
       use: [{
         loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env', '@babel/preset-react']
+        }
       }],
       include: __dirname + '/src/index.js',
     }]
