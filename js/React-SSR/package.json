@@ -15,7 +15,7 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "react": "^16.4.0",
     "react-dom": "^16.4.0"
   }
